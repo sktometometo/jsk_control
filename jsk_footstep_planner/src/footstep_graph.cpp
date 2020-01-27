@@ -132,7 +132,7 @@ namespace jsk_footstep_planner
     }
     return false;
   }
-                                       
+
   // return true if colliding with obstacle
   bool FootstepGraph::isColliding(StatePtr current_state, StatePtr previous_state)
   {
