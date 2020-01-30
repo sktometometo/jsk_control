@@ -59,6 +59,10 @@ footstep を計算するときに用いる障害物の点群.
 
 * `collision_bbox_offset` ( String representing an array of double values, default: `"[0, 0, 0]"` )
 
+* `default_lfoot_to_rfoot_offset` ( String representing an array of double values, default: `"[0, 0, 0]"` )
+
+* `successors` ( String representing an array of dicts representing a succesor )
+
 
 ## Dynamic Parameters
 
@@ -128,7 +132,7 @@ footstep を計算するときに用いる障害物の点群.
 
 * `plane_estimation_max_iteration` ( Int, default: ``, range: `[]` )
 
-* `plane_estimation_min_inliers` ( Int, default: ``, range: `[]` )
+* `plane_estimation_min_inliers` ( Int, default: `100`, range: `[1,1001]` )
 
 * `plane_estimation_outlier_threshold` ( Double, default: ``, range: `[]` )
 
