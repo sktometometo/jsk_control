@@ -324,7 +324,10 @@ namespace jsk_footstep_planner
   FootstepState::Ptr FootstepGraph::projectFootstep(FootstepState::Ptr in)
   {
     unsigned int error_state;
-    return projectFootstep(in, error_state);
+    FootstepState::Ptr ret;
+    ret = projectFootstep(in, error_state);
+    ROS_INFO("error_state:%u",error_state);
+    return ret;
   }
   
   FootstepState::Ptr FootstepGraph::projectFootstep(FootstepState::Ptr in,
@@ -356,6 +359,7 @@ namespace jsk_footstep_planner
       if (global_transition_limit_) {
         if (!global_transition_limit_->check(zero_state_, left_projected) ||
             !global_transition_limit_->check(zero_state_, right_projected)) {
+          ROS_ERROR("global transition limit error");
           return false;
         }
       }
@@ -365,6 +369,7 @@ namespace jsk_footstep_planner
       return true;
     }
     else {
+      ROS_ERROR("Failed to project.(Null returned)");
       return false;
     }
   }
@@ -375,14 +380,17 @@ namespace jsk_footstep_planner
     FootstepState::Ptr projected = projectFootstep(start_state_);
     if (global_transition_limit_) {
       if (!global_transition_limit_->check(zero_state_, projected)) {
+        ROS_ERROR("global transition limit error");
         return false;
       }
     }
     if (projected) {
       start_state_ = projected;
       return true;
+    } else {
+      ROS_ERROR("Failed to project.(Null returned)");
+      return false;
     }
-    return false;
   }
 
   double footstepHeuristicZero(

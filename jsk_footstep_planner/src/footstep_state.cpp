@@ -506,6 +506,7 @@ namespace jsk_footstep_planner
     for (size_t i = 0; i < foot_x_sampling_num; i++) {
       for (size_t j = 0; j < foot_y_sampling_num; j++) {
         if (!occupiedp[i][j]) {
+          ROS_INFO("NOT_SUPPORTED");
           return NOT_SUPPORTED;
         }
       }
@@ -531,6 +532,16 @@ namespace jsk_footstep_planner
       return SUPPORTED;
     }
     else {
+      ROS_INFO("tree.radiusSearch(p, vertex_threshold, kdl_indices, kdl_distances, 1):%d",
+                tree.radiusSearch(p, vertex_threshold, kdl_indices, kdl_distances, 1));
+      ROS_INFO("tree.radiusSearch(pa, vertex_threshold, kdl_indices, kdl_distances, 1):%d",
+                tree.radiusSearch(pa, vertex_threshold, kdl_indices, kdl_distances, 1));
+      ROS_INFO("tree.radiusSearch(pb, vertex_threshold, kdl_indices, kdl_distances, 2):%d",
+                tree.radiusSearch(pb, vertex_threshold, kdl_indices, kdl_distances, 1));
+      ROS_INFO("tree.radiusSearch(pc, vertex_threshold, kdl_indices, kdl_distances, 1):%d",
+                tree.radiusSearch(pc, vertex_threshold, kdl_indices, kdl_distances, 1));
+      ROS_INFO("tree.radiusSearch(pd, vertex_threshold, kdl_indices, kdl_distances, 1):%d",
+                tree.radiusSearch(pd, vertex_threshold, kdl_indices, kdl_distances, 1));
       return CLOSE_TO_SUPPORTED;
     }
   }
