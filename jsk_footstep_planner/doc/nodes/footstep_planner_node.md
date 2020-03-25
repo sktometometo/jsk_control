@@ -70,13 +70,20 @@ footstep を計算するときに用いる障害物の点群.
 
 * `use_pointcloud_model` ( Bool, default: `False` )
 
+計算時に地面の点群のROS topic を使用する.
+
 * `use_lazy_perception` ( Bool, default: `False` )
+
+FootstepGraph の lazy_projection を trueにする?
+AStarでの探索時にあまりプロジェクションしないようになっている?よくわからない...
 
 * `use_local_movement` ( Bool, default: `False` )
 
+計算時に障害物の点群のROS topic を使用する.
+
 * `use_transition_limit` ( Bool, default: `False` )
 
-* `use_global_transition` ( Bool, default: `False` )
+* `use_global_transition_limit` ( Bool, default: `False` )
 
 * `use_obstacle_model` ( Bool, default: `False` )
 
@@ -86,11 +93,19 @@ footstep を計算するときに用いる障害物の点群.
 
 * `local_move_x` ( Double, default: `1.0`, range: `[]` )
 
+FootstepGraph::localMoveFootstepState() での探索時のパラメータとして使用されている?
+
 * `local_move_y` ( Double, default: `1.0`, range: `[]` )
+
+FootstepGraph::localMoveFootstepState() での探索時のパラメータとして使用されている?
 
 * `local_move_theta` ( Double, default: `1.0`, range: `[]` )
 
+FootstepGraph::localMoveFootstepState() での探索時のパラメータとして使用されている?
+
 * `local_move_x_offset` ( Double, default: `1.0`, range: `[]` )
+
+FootstepGraph::localMoveFootstepState() での探索時のパラメータとして使用されている?
 
 * `local_move_y_offset` ( Double, default: `1.0`, range: `[]` )
 
