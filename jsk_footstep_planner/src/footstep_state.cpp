@@ -506,7 +506,7 @@ namespace jsk_footstep_planner
     for (size_t i = 0; i < foot_x_sampling_num; i++) {
       for (size_t j = 0; j < foot_y_sampling_num; j++) {
         if (!occupiedp[i][j]) {
-          ROS_INFO("NOT_SUPPORTED");
+          ROS_INFO("return NOT_SUPPORTED");
           return NOT_SUPPORTED;
         }
       }
@@ -529,6 +529,7 @@ namespace jsk_footstep_planner
         tree.radiusSearch(pb, vertex_threshold, kdl_indices, kdl_distances, 1) > 0 &&
         tree.radiusSearch(pc, vertex_threshold, kdl_indices, kdl_distances, 1) > 0 &&
         tree.radiusSearch(pd, vertex_threshold, kdl_indices, kdl_distances, 1) > 0) {
+      ROS_INFO("return SUPPORTED");
       return SUPPORTED;
     }
     else {
@@ -542,6 +543,7 @@ namespace jsk_footstep_planner
                 tree.radiusSearch(pc, vertex_threshold, kdl_indices, kdl_distances, 1));
       ROS_INFO("tree.radiusSearch(pd, vertex_threshold, kdl_indices, kdl_distances, 1):%d",
                 tree.radiusSearch(pd, vertex_threshold, kdl_indices, kdl_distances, 1));
+      ROS_INFO("return CLOSE_TO_SUPPORTED");
       return CLOSE_TO_SUPPORTED;
     }
   }
@@ -588,12 +590,14 @@ namespace jsk_footstep_planner
       ++success_count;
     }
     if (success_count == 5) {
+      ROS_INFO("return SUPPORTED");
       return SUPPORTED;
     }
     // else if (success_count > 0) {
     //   return CLOSE_TO_SUPPORTED;
     // }
     else {
+      ROS_INFO("return NOT_SUPPORTED");
       return NOT_SUPPORTED;
     }
   }

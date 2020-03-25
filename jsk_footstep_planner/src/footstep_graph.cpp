@@ -326,7 +326,11 @@ namespace jsk_footstep_planner
     unsigned int error_state;
     FootstepState::Ptr ret;
     ret = projectFootstep(in, error_state);
-    ROS_INFO("error_state:%u",error_state);
+    if (ret) {
+      ROS_INFO("success to project footstep");
+    } else {
+      ROS_INFO("Failed to project footstep. error_state:%u",error_state);
+    }
     return ret;
   }
   
@@ -366,6 +370,7 @@ namespace jsk_footstep_planner
 
       left_goal_state_ = left_projected;
       right_goal_state_ = right_projected;
+      ROS_INFO("Success to project goal states.");
       return true;
     }
     else {
@@ -386,9 +391,10 @@ namespace jsk_footstep_planner
     }
     if (projected) {
       start_state_ = projected;
+      ROS_INFO("Success to project start state.");
       return true;
     } else {
-      ROS_ERROR("Failed to project.(Null returned)");
+      ROS_ERROR("Failed to project start state.(Null returned)");
       return false;
     }
   }

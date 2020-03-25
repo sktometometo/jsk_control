@@ -527,13 +527,15 @@ namespace jsk_footstep_planner
     graph_->setStartState(start);
     if (project_start_state_) {
       if (!graph_->projectStart()) {
-        ROS_ERROR("Failed to project start state");
+        ROS_ERROR("Failed to project start states");
         publishText(pub_text_,
                     "Failed to project start",
                     ERROR);
 
         as_.setPreempted();
         return;
+      } else {
+        ROS_INFO("Succeeded to project start states");
       }
     }
 
@@ -569,6 +571,8 @@ namespace jsk_footstep_planner
                     "Failed to project goal",
                     ERROR);
         return;
+      } else {
+        ROS_INFO("Succeeded to project goal states");
       }
     }
     // set parameters
