@@ -540,6 +540,8 @@ namespace jsk_footstep_planner
       } else {
         ROS_INFO("Succeeded to project start states");
       }
+    } else {
+     ROS_INFO("Start state will not be projected.");
     }
 
     ////////////////////////////////////////////////////////////////////
