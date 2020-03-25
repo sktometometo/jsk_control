@@ -53,9 +53,6 @@
 
 namespace jsk_footstep_planner
 {
-#if DEBUG
-  ros::Publisher pub_debug_marker;
-#endif
   std::string projectStateToString(unsigned int state)
   {
     if (state == projection_state::success) {
@@ -164,22 +161,7 @@ namespace jsk_footstep_planner
     grid_search->approximateSearchInBox(a, b, c, d, *near_indices);
     return cropPointCloudExact(cloud, near_indices, padding_x, padding_y);
   }
-  
-#if 0
-  pcl::PointIndices::Ptr
-  FootstepState::cropPointCloud(pcl::PointCloud<pcl::PointNormal>::Ptr cloud,
-                                pcl::search::Octree<pcl::PointNormal>& tree)
-  {
-    pcl::PointNormal center;
-    center.getVector3fMap() = Eigen::Vector3f(pose_.translation());
-    center.z = 0.0;
-    float r = 0.2;
-    pcl::PointIndices::Ptr near_indices(new pcl::PointIndices);
-    std::vector<float> distances;
-    tree.radiusSearch(center, r, near_indices->indices, distances);
-    return cropPointCloudExact(cloud, near_indices);
-  }
-#endif
+
   bool FootstepState::crossCheck(FootstepState::Ptr other, float collision_padding)
   {
     Eigen::Vector3f a0, a1, a2, a3;
@@ -205,7 +187,7 @@ namespace jsk_footstep_planner
              a_30.isCrossing(b_23) ||
              a_30.isCrossing(b_30));
   }
-  
+
   FootstepState::Ptr
   FootstepState::projectToCloud(pcl::KdTreeFLANN<pcl::PointNormal>& tree,
                                 pcl::PointCloud<pcl::PointNormal>::Ptr cloud,
@@ -237,26 +219,11 @@ namespace jsk_footstep_planner
     DEBUG_PRINT("[FS state] pre / indices " << indices->indices.size());
     if (indices->indices.size() < parameters.plane_estimation_min_inliers) {
       DEBUG_PRINT("[FS state] no enough inliners");
+      ROS_ERROR("inliers ( %d points ) are not enough. ( %d points required)", indices->indices.size(), parameters.plane_estimation_min_inliers );
       error_state = projection_state::no_enough_inliers;
       return FootstepState::Ptr();
     }
     if (!parameters.skip_cropping) {
-#if DEBUG
-      double ax = 0.0, ay = 0.0, az = 0.0;
-      double xx = 0.0, yy = 0.0, zz = 0.0;
-      for (size_t i = 0; i < indices->indices.size(); i++) {
-        pcl::PointNormal pp = cloud->points[indices->indices[i]];
-        ROS_INFO("%d %f %f %f", indices->indices[i], pp.x, pp.y, pp.z);
-        ax += pp.x; ay += pp.y; az += pp.z;
-        xx += pp.x*pp.x; yy += pp.y*pp.y; zz += pp.z*pp.z;
-      }
-      int ss = indices->indices.size();
-      ROS_INFO("ave( %d ): %f %f %f, %f %f %f",
-               ss, ax/ss, ay/ss, az/ss,
-               sqrt(xx/ss - (ax/ss)*(ax/ss)),
-               sqrt(yy/ss - (ay/ss)*(ay/ss)),
-               sqrt(zz/ss - (az/ss)*(az/ss)));
-#endif
       presupport_state = isSupportedByPointCloud(
         pose_, cloud, tree, indices,
         parameters.support_check_x_sampling,
@@ -348,77 +315,6 @@ namespace jsk_footstep_planner
       // std::cout << "new_rot_mat: " << std::endl << new_rot_mat << std::endl;
       //Eigen::Affine3f new_pose = new_rot * Eigen::Translation3f(q);
       // check is it enough points to support the footstep
-#if DEBUG
-      visualization_msgs::Marker marker;
-      marker.header.frame_id = "map";
-      marker.header.stamp = ros::Time();
-      //marker.ns = "my_namespace";
-      marker.id = 0;
-      marker.type = visualization_msgs::Marker::POINTS;
-      marker.action = visualization_msgs::Marker::ADD;
-      marker.pose.position.x = 0;
-      marker.pose.position.y = 0;
-      marker.pose.position.z = 0;
-      marker.pose.orientation.x = 0.0;
-      marker.pose.orientation.y = 0.0;
-      marker.pose.orientation.z = 0.0;
-      marker.pose.orientation.w = 1.0;
-      marker.scale.x = 0.01;
-      marker.scale.y = 0.01;
-      marker.scale.z = 0.1;
-      marker.color.a = 1.0; // Don't forget to set the alpha!
-      marker.color.r = 1.0;
-      marker.color.g = 0.0;
-      marker.color.b = 0.0;
-      //marker.points.resize(inliers->indices.size());
-      for(int i; i < inliers->indices.size(); i++) {
-        geometry_msgs::Point pp;
-        pcl::PointNormal pt = cloud->points[inliers->indices[i]];
-        pp.x = pt.x;
-        pp.y = pt.y;
-        pp.z = pt.z;
-        marker.points.push_back(pp);
-      }
-      visualization_msgs::Marker marker_p;
-      marker_p.header.frame_id = "map";
-      marker_p.header.stamp = ros::Time();
-      //marker_p.ns = "my_namespace";
-      marker_p.id = 1;
-      marker_p.type = visualization_msgs::Marker::POINTS;
-      marker_p.action = visualization_msgs::Marker::ADD;
-      marker_p.pose.position.x = 0;
-      marker_p.pose.position.y = 0;
-      marker_p.pose.position.z = 0;
-      marker_p.pose.orientation.x = 0.0;
-      marker_p.pose.orientation.y = 0.0;
-      marker_p.pose.orientation.z = 0.0;
-      marker_p.pose.orientation.w = 1.0;
-      marker_p.scale.x = 0.01;
-      marker_p.scale.y = 0.01;
-      marker_p.scale.z = 0.1;
-      marker_p.color.a = 1.0; // Don't forget to set the alpha!
-      marker_p.color.r = 0.0;
-      marker_p.color.g = 0.0;
-      marker_p.color.b = 1.0;
-      //marker.points.resize(inliers->indices.size());
-      for(int i; i < inliers->indices.size(); i++) {
-        geometry_msgs::Point pp;
-        pcl::PointNormal pt = cloud->points[inliers->indices[i]];
-        Eigen::Vector3f ep(pt.x, pt.y, pt.z);
-        Eigen::Vector3f rt;
-        plane.project(ep, rt);
-        pp.x = rt(0);
-        pp.y = rt(1);
-        pp.z = rt(2);
-        marker_p.points.push_back(pp);
-      }
-
-      //only if using a MESH_RESOURCE marker type:
-      visualization_msgs::MarkerArray arry;
-      arry.markers.push_back(marker);
-      arry.markers.push_back(marker_p);
-      pub_debug_marker.publish( arry );
-#endif
       FootstepSupportState support_state;
       if (parameters.skip_cropping) {
         support_state = isSupportedByPointCloudWithoutCropping(

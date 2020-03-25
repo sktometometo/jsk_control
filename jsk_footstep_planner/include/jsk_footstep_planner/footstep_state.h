@@ -121,27 +121,7 @@ namespace jsk_footstep_planner
     }
     virtual jsk_footstep_msgs::Footstep::Ptr toROSMsg();
     virtual jsk_footstep_msgs::Footstep::Ptr toROSMsg(const Eigen::Vector3f& ioffset);
-#if 0
-    virtual FootstepState::Ptr
-    projectToCloud(pcl::KdTreeFLANN<pcl::PointNormal>& tree,
-                   pcl::PointCloud<pcl::PointNormal>::Ptr cloud,
-                   ANNGrid::Ptr grid_search,
-                   pcl::search::Octree<pcl::PointNormal>& tree_2d,
-                   pcl::PointCloud<pcl::PointNormal>::Ptr cloud_2d,
-                   const Eigen::Vector3f& z,
-                   unsigned int& error_state,
-                   double outlier_threshold,
-                   int max_iterations,
-                   int min_inliers,
-                   int foot_x_sampling_num = 3,
-                   int foot_y_sampling_num = 3,
-                   double vertex_threshold = 0.02,
-                   const bool skip_cropping = true,
-                   const bool use_normal = false,
-                   double normal_distance_weight = 0.2,
-                   double normal_opening_angle = 0.2,
-                   double min_ratio_of_inliers = 0.8);
-#endif
+
     virtual FootstepState::Ptr
     projectToCloud(pcl::KdTreeFLANN<pcl::PointNormal>& tree,
                    pcl::PointCloud<pcl::PointNormal>::Ptr cloud,
@@ -151,12 +131,7 @@ namespace jsk_footstep_planner
                    const Eigen::Vector3f& z,
                    unsigned int& error_state,
                    FootstepParameters &parameters);
-    
-#if 0
-    pcl::PointIndices::Ptr
-    cropPointCloud(pcl::PointCloud<pcl::PointNormal>::Ptr cloud,
-                   pcl::search::Octree<pcl::PointNormal>& tree);
-#endif
+
     pcl::PointIndices::Ptr
     cropPointCloud(pcl::PointCloud<pcl::PointNormal>::Ptr cloud,
                    ANNGrid::Ptr grid_search,
