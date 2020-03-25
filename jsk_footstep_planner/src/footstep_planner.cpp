@@ -494,6 +494,8 @@ namespace jsk_footstep_planner
       ROS_ERROR("goal is non-realistic");
       as_.setPreempted();
       return;
+    } else {
+      ROS_INFO("goal is successable.");
     }
     ros::WallDuration timeout;
     if(goal->timeout.toSec() == 0.0) {
@@ -525,6 +527,7 @@ namespace jsk_footstep_planner
                                footstep_size,
                                search_resolution));
     graph_->setStartState(start);
+    ROS_INFO("set start state");
     if (project_start_state_) {
       if (!graph_->projectStart()) {
         ROS_ERROR("Failed to project start states");
