@@ -159,6 +159,7 @@ namespace jsk_footstep_planner
     Eigen::Vector3f c = pose_ * Eigen::Vector3f(-dimensions_[0]/2 - padding_x, -dimensions_[1]/2 - padding_y, 0);
     Eigen::Vector3f d = pose_ * Eigen::Vector3f( dimensions_[0]/2 + padding_x, -dimensions_[1]/2 - padding_y, 0);
     grid_search->approximateSearchInBox(a, b, c, d, *near_indices);
+    ROS_INFO("near_indices:%d",near_indices->indices.size());
     return cropPointCloudExact(cloud, near_indices, padding_x, padding_y);
   }
 
