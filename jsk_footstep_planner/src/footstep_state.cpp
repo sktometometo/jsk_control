@@ -110,6 +110,8 @@ namespace jsk_footstep_planner
                                      pcl::PointIndices::Ptr near_indices,
                                      double padding_x, double padding_y)
   {
+    ROS_INFO( "dimensions_[0]: %f, dimensions_[1]: %f, padding_x: %f, padding_y: %f", dimensions_[0], dimensions_[1], padding_x, padding_y );
+
     // Project vertices into 2d
     Eigen::Vector3f z(0, 0, 1);
     Eigen::Vector3f a = pose_ * Eigen::Vector3f( dimensions_[0]/2 + padding_x,  dimensions_[1]/2 + padding_y, 0);
@@ -125,6 +127,7 @@ namespace jsk_footstep_planner
     Eigen::Vector2f b2d(b_2d[0], b_2d[1]);
     Eigen::Vector2f c2d(c_2d[0], c_2d[1]);
     Eigen::Vector2f d2d(d_2d[0], d_2d[1]);
+
     //std::set<int> set_indices;
     pcl::PointIndices::Ptr ret(new pcl::PointIndices);
     ret->indices.reserve(near_indices->indices.size());
@@ -135,6 +138,7 @@ namespace jsk_footstep_planner
       const Eigen::Vector3f ep = point.getVector3fMap();
       const Eigen::Vector3f point_2d = ep + (-z.dot(ep)) * z;
       const Eigen::Vector2f p2d(point_2d[0], point_2d[1]);
+      // 点が四角形の中に入っているかどうかを見ている?
       if (cross2d((b2d - a2d), (p2d - a2d)) > 0 &&
           cross2d((c2d - b2d), (p2d - b2d)) > 0 &&
           cross2d((d2d - c2d), (p2d - c2d)) > 0 &&
@@ -159,7 +163,6 @@ namespace jsk_footstep_planner
     Eigen::Vector3f c = pose_ * Eigen::Vector3f(-dimensions_[0]/2 - padding_x, -dimensions_[1]/2 - padding_y, 0);
     Eigen::Vector3f d = pose_ * Eigen::Vector3f( dimensions_[0]/2 + padding_x, -dimensions_[1]/2 - padding_y, 0);
     grid_search->approximateSearchInBox(a, b, c, d, *near_indices);
-    ROS_INFO("near_indices:%d",near_indices->indices.size());
     return cropPointCloudExact(cloud, near_indices, padding_x, padding_y);
   }
 
@@ -214,15 +217,18 @@ namespace jsk_footstep_planner
         parameters.support_check_vertex_neighbor_threshold);
       DEBUG_PRINT("[FS state] pre /(skip_cropping) projection state " << presupport_state);
     }
+    // cloud から, footstep 周辺の pointcloud のみを切り出している?
     indices = cropPointCloud(cloud, grid_search,
                              parameters.support_padding_x,
                              parameters.support_padding_y);
     DEBUG_PRINT("[FS state] pre / indices " << indices->indices.size());
     if (indices->indices.size() < parameters.plane_estimation_min_inliers) {
       DEBUG_PRINT("[FS state] no enough inliners");
-      ROS_ERROR("inliers ( %d points ) are not enough. ( %d points required)", indices->indices.size(), parameters.plane_estimation_min_inliers );
+      ROS_ERROR("cropped points ( %d points ) are not enough. ( %d points required)", indices->indices.size(), parameters.plane_estimation_min_inliers );
       error_state = projection_state::no_enough_inliers;
       return FootstepState::Ptr();
+    } else {
+      ROS_INFO("cropped points ( %d points ) are enough. ( %d points required)", indices->indices.size(), parameters.plane_estimation_min_inliers );
     }
     if (!parameters.skip_cropping) {
       presupport_state = isSupportedByPointCloud(
@@ -409,10 +415,10 @@ namespace jsk_footstep_planner
       }
     }
 
-    Eigen::Vector3f a((pose * Eigen::Translation3f(ux * dimensions_[0] / 2 + uy * dimensions_[1] / 2)).translation());
+    Eigen::Vector3f a((pose * Eigen::Translation3f(  ux * dimensions_[0] / 2 + uy * dimensions_[1] / 2)).translation());
     Eigen::Vector3f b((pose * Eigen::Translation3f(- ux * dimensions_[0] / 2 + uy * dimensions_[1] / 2)).translation());
     Eigen::Vector3f c((pose * Eigen::Translation3f(- ux * dimensions_[0] / 2 - uy * dimensions_[1] / 2)).translation());
-    Eigen::Vector3f d((pose * Eigen::Translation3f(ux * dimensions_[0] / 2 - uy * dimensions_[1] / 2)).translation());
+    Eigen::Vector3f d((pose * Eigen::Translation3f(  ux * dimensions_[0] / 2 - uy * dimensions_[1] / 2)).translation());
     pcl::PointNormal pa, pb, pc, pd, p;
     pa.getVector3fMap() = a;
     pb.getVector3fMap() = b;
@@ -434,7 +440,7 @@ namespace jsk_footstep_planner
                 tree.radiusSearch(p, vertex_threshold, kdl_indices, kdl_distances, 1));
       ROS_INFO("tree.radiusSearch(pa, vertex_threshold, kdl_indices, kdl_distances, 1):%d",
                 tree.radiusSearch(pa, vertex_threshold, kdl_indices, kdl_distances, 1));
-      ROS_INFO("tree.radiusSearch(pb, vertex_threshold, kdl_indices, kdl_distances, 2):%d",
+      ROS_INFO("tree.radiusSearch(pb, vertex_threshold, kdl_indices, kdl_distances, 1):%d",
                 tree.radiusSearch(pb, vertex_threshold, kdl_indices, kdl_distances, 1));
       ROS_INFO("tree.radiusSearch(pc, vertex_threshold, kdl_indices, kdl_distances, 1):%d",
                 tree.radiusSearch(pc, vertex_threshold, kdl_indices, kdl_distances, 1));

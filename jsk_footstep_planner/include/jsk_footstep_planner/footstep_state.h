@@ -115,6 +115,12 @@ namespace jsk_footstep_planner
                                   const Eigen::Vector3f& size,
                                   const Eigen::Vector3f& resolution);
     
+    /**
+     * @fn
+     * 二次元のベクトルのクロス積,つまり,２つのベクトルのなす平行四辺形の面積を返す
+     * @brief
+     * @param ()
+     */
     inline float cross2d(const Eigen::Vector2f& a, const Eigen::Vector2f& b) const
     {
       return a[0] * b[1] - a[1] * b[0];
