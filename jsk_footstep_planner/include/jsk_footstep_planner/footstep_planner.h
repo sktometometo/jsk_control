@@ -39,8 +39,11 @@
 
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2_ros/transform_listener.h>
 
 // ros
+#include <geometry_msgs/TransformStamped.h>
 #include <jsk_footstep_msgs/FootstepArray.h>
 #include <jsk_footstep_msgs/PlanFootstepsAction.h>
 #include <jsk_footstep_planner/FootstepPlannerConfig.h>
@@ -75,7 +78,7 @@ namespace jsk_footstep_planner
     typedef boost::shared_ptr<FootstepPlanner> Ptr;
     typedef FootstepPlannerConfig Config;
     FootstepPlanner(ros::NodeHandle& nh,tf2_ros::Buffer& tfBuffer);
-    virtual void spin(int num_thread, float spinrate);
+    virtual void spin(int num_thread = 4, float spinrate = 50.0);
     virtual void setHeuristicPathLine(jsk_recognition_utils::PolyLine &path_line);
 
   protected:

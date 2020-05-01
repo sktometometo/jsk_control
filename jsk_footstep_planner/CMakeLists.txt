@@ -10,7 +10,7 @@ endif(CCACHE_FOUND)
 
 find_package(catkin REQUIRED COMPONENTS jsk_footstep_msgs jsk_recognition_utils
   message_generation jsk_topic_tools roscpp pcl_ros geometry_msgs eigen_conversions
-  jsk_interactive_marker visualization_msgs dynamic_reconfigure roseus rostest)
+  jsk_interactive_marker visualization_msgs dynamic_reconfigure roseus rostest tf2_ros)
 #find_package(PCL REQUIRED)
 add_service_files(FILES
   ChangeSuccessor.srv CollisionBoundingBoxInfo.srv ProjectFootstep.srv SetHeuristicPath.srv)
@@ -20,7 +20,7 @@ generate_messages(DEPENDENCIES geometry_msgs jsk_footstep_msgs)
 #catkin_python_setup()
 catkin_package(
   DEPENDS
-  CATKIN_DEPENDS jsk_footstep_msgs jsk_recognition_utils jsk_interactive_marker
+  CATKIN_DEPENDS jsk_footstep_msgs jsk_recognition_utils jsk_interactive_marker tf2_ros
   INCLUDE_DIRS include # TODO include
   LIBRARIES jsk_footstep_planner # TODO
   )

@@ -42,7 +42,7 @@
 
 namespace jsk_footstep_planner
 {
-  FootstepPlanner::FootstepPlanner(ros::NodeHandle& nh):
+  FootstepPlanner::FootstepPlanner(ros::NodeHandle& nh,tf2_ros::Buffer& tfBuffer):
     as_(nh, nh.getNamespace(),
         boost::bind(&FootstepPlanner::planCB, this, _1), false),
     tfBuffer_(tfBuffer)
@@ -108,9 +108,9 @@ namespace jsk_footstep_planner
     as_.start();
   }
 
-  void FootstepPlanner::spin(int num_thread = 4, float spinrate = 50.0)
+  void FootstepPlanner::spin(int num_thread, float spinrate)
   {
-      ros::AyncSpinner spinner(num_thread);
+      ros::AsyncSpinner spinner(num_thread);
       tf2_ros::TransformBroadcaster br;
       spinner.start();
 
@@ -700,10 +700,10 @@ namespace jsk_footstep_planner
     if ( publish_planning_base_frame_ ) {
         // tfBuffer_
         try {
-            transform_planning_base_ = tfBuffer_.loopupTransform(
+            transform_planning_base_ = tfBuffer_.lookupTransform(
                                     fixed_frame_id_,
                                     goal_frame_id,
-                                    rospy::Time(0)
+                                    ros::Time(0)
                     );
         } catch ( tf2::TransformException &ex ) {
             ROS_WARN("transform from fixed frame to goal frame failed. %s",ex.what());
@@ -717,7 +717,8 @@ namespace jsk_footstep_planner
     // Convert path to FootstepArray
     jsk_footstep_msgs::FootstepArray ros_path;
     if ( publish_planning_base_frame_ ) {
-        ros_path.header = goal_frame_id + std::string("_fixed");
+        ros_path.header = goal->goal_footstep.header;
+        ros_path.header.frame_id = goal_frame_id + std::string("_fixed");
     } else {
         ros_path.header = goal->goal_footstep.header;
     }
