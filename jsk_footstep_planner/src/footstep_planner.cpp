@@ -44,7 +44,8 @@ namespace jsk_footstep_planner
 {
   FootstepPlanner::FootstepPlanner(ros::NodeHandle& nh):
     as_(nh, nh.getNamespace(),
-        boost::bind(&FootstepPlanner::planCB, this, _1), false)
+        boost::bind(&FootstepPlanner::planCB, this, _1), false),
+    tfBuffer_(tfBuffer)
   {
     srv_ = boost::make_shared <dynamic_reconfigure::Server<Config> > (nh);
     typename dynamic_reconfigure::Server<Config>::CallbackType f =
@@ -107,10 +108,26 @@ namespace jsk_footstep_planner
     as_.start();
   }
 
+  void FootstepPlanner::spin(int num_thread = 4, float spinrate = 50.0)
+  {
+      ros::AyncSpinner spinner(num_thread);
+      tf2_ros::TransformBroadcaster br;
+      spinner.start();
+
+      ros::Rate rate(spinrate);
+      while( ros::ok() ) {
+          rate.sleep();
+          if ( transform_planning_base_.header.frame_id != transform_planning_base_.child_frame_id ) {
+              br.sendTransform( transform_planning_base_ );
+          }
+      }
+  }
+
   void FootstepPlanner::obstacleCallback(
     const sensor_msgs::PointCloud2::ConstPtr& msg)
   {
     boost::mutex::scoped_lock lock(mutex_);
+    ROS_DEBUG("obstacle model is updated");
     obstacle_model_.reset(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromROSMsg(*msg, *obstacle_model_);
     obstacle_model_frame_id_ = msg->header.frame_id;
@@ -678,9 +695,32 @@ namespace jsk_footstep_planner
       as_.setPreempted();
       return;
     }
+    ////////////////////////////////////////////////////////////////////
+    // Publish a plannning base frame
+    if ( publish_planning_base_frame_ ) {
+        // tfBuffer_
+        try {
+            transform_planning_base_ = tfBuffer_.loopupTransform(
+                                    fixed_frame_id_,
+                                    goal_frame_id,
+                                    rospy::Time(0)
+                    );
+        } catch ( tf2::TransformException &ex ) {
+            ROS_WARN("transform from fixed frame to goal frame failed. %s",ex.what());
+            as_.setPreempted();
+            return;
+        }
+        transform_planning_base_.child_frame_id = goal_frame_id + std::string("_fixed");
+    } else {
+        transform_planning_base_ = geometry_msgs::TransformStamped();
+    }
     // Convert path to FootstepArray
     jsk_footstep_msgs::FootstepArray ros_path;
-    ros_path.header = goal->goal_footstep.header;
+    if ( publish_planning_base_frame_ ) {
+        ros_path.header = goal_frame_id + std::string("_fixed");
+    } else {
+        ros_path.header = goal->goal_footstep.header;
+    }
     for (size_t i = 0; i < path.size(); i++) {
       const FootstepState::Ptr st = path[i]->getState();
       if (st->getLeg() == jsk_footstep_msgs::Footstep::LEFT) {

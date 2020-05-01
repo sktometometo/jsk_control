@@ -48,9 +48,11 @@ int main(int argc, char** argv)
   pcl::console::setVerbosityLevel(pcl::console::L_ERROR);
   ros::init(argc, argv, "footstep_planner");
   ros::NodeHandle pnh("~");
+  tf2_ros::Buffer tfBuffer;
+  tf2_ros::TransformListener tfListener(tfBuffer);
 #if DEBUG
   jsk_footstep_planner::pub_debug_marker = pnh.advertise<visualization_msgs::MarkerArray>("debug_marker_array", 1);
 #endif
-  jsk_footstep_planner::FootstepPlanner planner(pnh);
-  ros::spin();
+  jsk_footstep_planner::FootstepPlanner planner(pnh,tfBuffer);
+  planner.spin();
 }

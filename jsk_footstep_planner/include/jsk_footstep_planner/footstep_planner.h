@@ -74,7 +74,8 @@ namespace jsk_footstep_planner
   public:
     typedef boost::shared_ptr<FootstepPlanner> Ptr;
     typedef FootstepPlannerConfig Config;
-    FootstepPlanner(ros::NodeHandle& nh);
+    FootstepPlanner(ros::NodeHandle& nh,tf2_ros::Buffer& tfBuffer);
+    virtual void spin(int num_thread, float spinrate);
     virtual void setHeuristicPathLine(jsk_recognition_utils::PolyLine &path_line);
 
   protected:
@@ -182,6 +183,14 @@ namespace jsk_footstep_planner
     double heuristic_weight_;
     std::string pointcloud_model_frame_id_, obstacle_model_frame_id_;
     double planning_timeout_;
+
+    //
+    tf2_ros::Buffer& tfBuffer_;
+    tf2_ros::TransformBroadcaster br_;
+
+    bool publish_planning_base_frame_;
+    std::string fixed_frame_id_;
+    geometry_msgs::TransformStamped transform_planning_base_;
 
   private:
     
