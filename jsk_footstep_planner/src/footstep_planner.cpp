@@ -1012,6 +1012,8 @@ namespace jsk_footstep_planner
         buildGraph();
       }
     }
+    fixed_frame_id_ = config.fixed_frame_id;
+    publish_planning_base_frame_ = config.publish_planning_base_frame;
   }
   
   void FootstepPlanner::buildGraph()
